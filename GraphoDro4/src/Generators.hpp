@@ -47,24 +47,19 @@ public:
         Graph g;
         std::mt19937 gen(std::random_device{}());
         std::uniform_real_distribution<> dis(0.0, 1.0);
-        for (int i = 0; i < n; ++i) {
-            for (int j = i + 1; j < n; ++j) {
+        for (int i = 0; i < n; ++i)
+            for (int j = i + 1; j < n; ++j)
                 if (dis(gen) < p) g.addEdge(i, j);
-            }
-        }
         return g;
     }
 
     static Graph WithConnectedComponents(int n, int k) {
         Graph g;
         if (k > n || k < 1) return g;
-        int compSize = n / k;
-        int v = 0;
+        int compSize = n / k, v = 0;
         for (int i = 0; i < k; ++i) {
             int currentSize = (i == k - 1) ? (n - v) : compSize;
-            for (int j = 0; j < currentSize - 1; ++j) {
-                g.addEdge(v + j, v + j + 1);
-            }
+            for (int j = 0; j < currentSize - 1; ++j) g.addEdge(v + j, v + j + 1);
             v += currentSize;
         }
         return g;
@@ -72,22 +67,55 @@ public:
 
     static Graph WithBridges(int n, int b) {
         Graph g;
-        // Шаг 1: Создаем путь из b ребер (это будут наши b мостов)
-        // Вершины: 0, 1, ..., b
-        for (int i = 0; i < b; ++i) {
-            g.addEdge(i, i + 1);
-        }
-
-        // Шаг 2: Остальные n - (b + 1) вершин цепляем в цикл к вершине b
+        for (int i = 0; i < b; ++i) g.addEdge(i, i + 1);
         if (n > b + 1) {
-            for (int i = b; i < n - 1; ++i) {
-                g.addEdge(i, i + 1); // Строим цепочку
-            }
-            // Замыкаем цепочку в цикл, соединяя последнюю вершину с b
-            if (n - b > 2) {
-                g.addEdge(n - 1, b); 
-            }
+            for (int i = b; i < n - 1; ++i) g.addEdge(i, i + 1);
+            if (n - b > 2) g.addEdge(n - 1, b); 
         }
+        return g;
+    }
+
+    // НОВОЕ: 10. Кубический граф (регулярный степени 3)
+    static Graph Cubic(int n) {
+        Graph g;
+        if (n % 2 != 0 || n < 4) return g; // Кубический граф возможен только для четного n
+        for (int i = 0; i < n; ++i) {
+            g.addEdge(i, (i + 1) % n); // Внешний цикл
+            g.addEdge(i, (i + n / 2) % n); // Диагонали
+        }
+        return g;
+    }
+
+    // НОВОЕ: 11. Граф с заданным количеством точек сочленения (k)
+    static Graph WithArticulationPoints(int n, int k) {
+        Graph g;
+        if (n < k + 2) return g;
+        // Строим путь длины k+1 (вершины от 0 до k)
+        for (int i = 0; i < k; ++i) g.addEdge(i, i + 1);
+        // Остальные вершины цепляем к вершине k в виде цикла
+        if (n > k + 1) {
+            for (int i = k + 1; i < n - 1; ++i) g.addEdge(i, i + 1);
+            g.addEdge(n - 1, k + 1);
+            g.addEdge(k, k + 1);
+            if(n - k > 2) g.addEdge(k, n - 1);
+        }
+        return g;
+    }
+
+    // НОВОЕ: 12. Граф с 2-мостами
+    // В простом цикле любая пара ребер - это 2-мост. 
+    // Для разнообразия создадим граф в виде гантели: два цикла, соединенные ребром.
+    static Graph With2Bridges(int n) {
+        Graph g;
+        if (n < 6) return Cycle(n); 
+        int half = n / 2;
+        for(int i=0; i<half-1; ++i) g.addEdge(i, i+1);
+        g.addEdge(half-1, 0); // Первый цикл
+        
+        for(int i=half; i<n-1; ++i) g.addEdge(i, i+1);
+        g.addEdge(n-1, half); // Второй цикл
+        
+        g.addEdge(0, half); // Соединяем мостом
         return g;
     }
 };

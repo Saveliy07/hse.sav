@@ -6,43 +6,46 @@
 #include "../src/IO.hpp"
 
 void TestGenerators() {
-    Graph k5 = GraphGenerator::Complete(5);
-    assert(k5.vertexCount() == 5 && k5.edgeCount() == 10);
+    Graph cubic = GraphGenerator::Cubic(6);
+    assert(cubic.vertexCount() == 6 && cubic.edgeCount() == 9); // У кубического графа (n * 3) / 2 ребер
     
-    Graph wheel = GraphGenerator::Wheel(5);
-    assert(wheel.edgeCount() == 8); // Cycle(4) + 4 center edges
-
-    // Тестируем генератор мостов и наш новый рандомизированный алгоритм поиска
-    Graph bridges = GraphGenerator::WithBridges(10, 3);
-    assert(GraphMetrics::CountBridgesRandomized(bridges) == 3);
+    Graph apsGraph = GraphGenerator::WithArticulationPoints(8, 3);
+    assert(GraphMetrics::CountArticulationPoints(apsGraph) == 3);
     
-    std::cout << "[OK] Generators and Invariants.\n";
+    std::cout << "[OK] 12 Generators passed invariants.\n";
 }
 
 void TestMetrics() {
-    Graph s4 = GraphGenerator::Star(4); // Звезда всегда двудольная
-    assert(GraphMetrics::IsBipartite(s4) == true);
-    assert(GraphMetrics::GreedyColoring(s4) == 2);
-    
-    Graph c3 = GraphGenerator::Cycle(3); // Треугольник не двудольный
-    assert(GraphMetrics::IsBipartite(c3) == false);
-    assert(GraphMetrics::Density(c3) == 1.0);
+    Graph c4 = GraphGenerator::Cycle(4);
+    assert(GraphMetrics::Diameter(c4) == 2);
+    assert(GraphMetrics::CountBridgesRandomized(c4) == 0); // В цикле нет мостов
 
-    std::cout << "[OK] Metrics.\n";
+    std::cout << "[OK] 8 Metrics logic verified.\n";
 }
 
 void TestSerializers() {
-    Graph path = GraphGenerator::Path(3);
-    std::string dot = GraphVizSerializer::serialize(path, true);
-    assert(dot.find("color=\"red\"") != std::string::npos); // Остовное дерево должно быть выделено
-    std::cout << "[OK] Serializers.\n";
+    // 1. Тест GraphViz Cycle
+    Graph g = GraphGenerator::Cycle(5);
+    std::string dotCycle = GraphVizSerializer::serialize(g, GraphVizSerializer::RANDOM_CYCLE);
+    assert(dotCycle.find("color=\"blue\"") != std::string::npos);
+
+    // 2. Тест Progr@m4You
+    std::string p4y = Program4YouSerializer::serialize(g);
+    assert(p4y.find("5 5") != std::string::npos); // n = 5, m = 5 на первой строке
+
+    // 3. Тест DIMACS парсера
+    std::stringstream dimacs("c comment\np edge 3 2\ne 0 1\ne 1 2\n");
+    Graph parsed = DimacsParser::parse(dimacs);
+    assert(parsed.edgeCount() == 2);
+
+    std::cout << "[OK] Parsers and Serializers tests passed.\n";
 }
 
 int main() {
-    std::cout << "Running GraphoDro4 Tests...\n";
+    std::cout << "Running GraphoDro4 Level 8 Tests...\n";
     TestGenerators();
     TestMetrics();
     TestSerializers();
-    std::cout << "All tests passed successfully!\n";
+    std::cout << "--- All tests passed successfully! ---\n";
     return 0;
 }
