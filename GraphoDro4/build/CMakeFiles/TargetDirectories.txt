@@ -1,0 +1,4 @@
+C:/Users/SAVELY/OneDrive/Desktop/programm/GraphoDro4/build/CMakeFiles/graph_app.dir
+C:/Users/SAVELY/OneDrive/Desktop/programm/GraphoDro4/build/CMakeFiles/graph_tests.dir
+C:/Users/SAVELY/OneDrive/Desktop/programm/GraphoDro4/build/CMakeFiles/edit_cache.dir
+C:/Users/SAVELY/OneDrive/Desktop/programm/GraphoDro4/build/CMakeFiles/rebuild_cache.dir
